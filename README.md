@@ -1,109 +1,238 @@
+
 # 🤖 VisionBot-SDK: Real-Time Mobile Automation Framework
 
-**VisionBot-SDK** is a high-performance, developer-first Android automation engine in Python. It provides a lightweight, robust, and zero-bloat alternative to heavier mobile testing platforms like Appium.
+VisionBot-SDK is a lightweight Python framework for building high-speed Android automation tools, mobile testing systems, and computer-vision-driven agents.
+
+Unlike traditional automation frameworks that rely on accessibility layers and high-overhead command pipelines, VisionBot continuously streams device frames, injects low-latency inputs, and provides a built-in state machine architecture for reliable automation.
+
+---
+
+## 🎥 Demo
+
+<img width="1280" height="718" alt="2026-06-0517-47-40-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/3f588463-8983-4a00-9e36-204ebb53b3c9" />
+
+> * Live Android screen streaming
+> * State transitions
+> * Automatic actions
+> * VisionBot Dashboard
+
+---
+
+## ⚖️ Why VisionBot?
+
+| Feature                        | VisionBot | Appium                    |
+| ------------------------------ | --------- | ------------------------- |
+| Continuous Frame Streaming     | ✅         | Requires Additional Setup |
+| Low-Latency Input Pipeline     | ✅         | Higher Overhead           |
+| Resolution-Independent Actions | ✅         | Manual                    |
+| Built-in FSM Framework         | ✅         | User Implemented          |
+| Lightweight Runtime            | ✅         | Heavier Stack             |
+| Computer Vision First          | ✅         | External Integration      |
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    A[Android Device]
+    B[Frame Streamer]
+    C[Vision Pipeline]
+    D[FSM Engine]
+    E[Input Injector]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+```
+
+---
 
 ## 🚀 Key Advantages
-* **⚡ <1ms Input Latency:** Directly injects taps and swipes over an Android Monkey socket, bypassing the 300ms Java VM overhead of standard `input tap`.
-* **📸 Non-Blocking Screencapping:** Background thread-safe frame streaming decodes device frames continuously into an active buffer using binary-safe pipes.
-* **📐 Bounding-Box Coordinate Autoscale:** Normalizes screen layout coordinates from `0.0` to `1.0`. The SDK automatically scales actions to match the actual display resolution.
-* **🧠 Extensible State Machine:** Replaces spaghetti code loops and fragile `time.sleep()` statements with an event-driven Finite State Machine (FSM) framework.
-* **🖥️ Reusable Visual Dashboard:** An optional, dark-themed GUI submodule (`visionbot.gui.VisionBotDashboard`) that dynamically renders live viewports, sliders, and telemetry statistics.
+
+### ⚡ Ultra-Low Latency Input
+
+Directly injects taps and swipes through Android's Monkey socket, eliminating the overhead of repeatedly invoking shell commands.
+
+### 📸 Continuous Frame Streaming
+
+Frames are captured asynchronously and stored in a thread-safe buffer, ensuring computer vision pipelines never block on screenshot acquisition.
+
+### 📐 Resolution-Independent Automation
+
+Coordinates can be specified using normalized values between `0.0` and `1.0`.
+
+The SDK automatically scales actions to match the target device resolution.
+
+### 🧠 Event-Driven State Machines
+
+Replace fragile loops and excessive `time.sleep()` calls with modular state-based automation workflows.
+
+### 🖥️ Visual Dashboard
+
+An optional dashboard module provides:
+
+* Live viewport rendering
+* State monitoring
+* Performance metrics
+* Action telemetry
 
 ---
 
-## 🛠️ Getting Started
+## 🎯 Use Cases
 
-### 1. Prerequisites
-* **Python 3.8+**
-* **ADB (Android Debug Bridge)** installed and added to your system `PATH`.
-* A connected Android device or emulator (verify with `adb devices`).
+VisionBot can be used for:
 
-### 2. Installation
-Install the required packages in your local environment:
+* Android UI Testing
+* Mobile QA Automation
+* Computer Vision Agents
+* Accessibility Tools
+* Workflow Automation
+* Data Entry Automation
+* Emulator Farm Management
+* Mobile Game Automation
+
+---
+
+## 📦 Installation
+
+### Requirements
+
+* Python 3.8+
+* ADB installed and available in PATH
+* Android device or emulator
+
+Verify device connectivity:
+
 ```bash
-pip install -r requirements.txt
+adb devices
+```
+
+Install VisionBot:
+
+```bash
+pip install visionbot-sdk
 ```
 
 ---
 
-## 💻 Quick Start Example
+## ⚡ Quick Start
 
-This code demonstrates how to connect to a device, stream the screen at 15 FPS, check for visual elements, and trigger clicks with absolute ease.
+Connect to a device and stream frames in a few lines of code:
 
 ```python
-from visionbot import AndroidDevice, TemplateMatcher
-from visionbot.input import FastInput
-import time
+from visionbot import AndroidDevice
 
-# 1. Automatically connect to the active device/emulator
-device = AndroidDevice(capture_fps=15, downscale_factor=1.0)
+device = AndroidDevice(capture_fps=15)
 
-# 2. Start high-speed low-latency touch client (Port 1080)
-fast_input = FastInput(device)
-
-# 3. Initialize CV Template Matcher
-play_btn = TemplateMatcher("templates/play_button.png")
-
-print("Waiting for Play button to appear on screen...")
 while True:
     frame = device.get_frame()
+
     if frame is not None:
-        # Search for the button with 85% confidence threshold
-        match = play_btn.match(frame, threshold=0.85)
-        if match:
-            x, y = match
-            print(f"Play button found at pixel: {x}, {y}. Tapping!")
-            device.tap(x, y)
-            break
-            
-    time.sleep(0.05)
+        print("Frame received:", frame.shape)
+        break
 ```
 
 ---
 
-## 🌀 Building Robust Bots with the State Machine (FSM)
+## 🌀 State Machine Example
 
-The recommended pattern is to structure your automations into modular `State` classes. Each state performs one action and routes to the next state based on real-time screen assessments.
-
-### Example FSM Design
+VisionBot includes a built-in finite state machine architecture for creating reliable automation workflows.
 
 ```python
-import time
 from visionbot import State, StateMachine, AndroidDevice
-from visionbot.vision import get_color_ratio
 
-LOW_CYAN, UP_CYAN = (80, 60, 160), (110, 255, 255)
 
-class StateExploring(State):
+class StateLaunch(State):
     def on_enter(self, machine):
-        print("Walking to trigger encounter...")
-        machine.device.tap(0.94, 0.46) # Auto-scales normalized float coordinate!
+        print("Starting automation...")
 
     def execute(self, machine):
-        frame = machine.device.get_frame()
-        if frame is not None:
-            # Check for battle Run button (crop box on left side of screen)
-            cyan_ratio = get_color_ratio(frame, LOW_CYAN, UP_CYAN, region=(0.05, 0.1, 0.15, 0.25))
-            if cyan_ratio > 0.08:
-                return StateInBattle
-        return None
+        return StateFinished
 
-class StateInBattle(State):
+
+class StateFinished(State):
     def on_enter(self, machine):
-        print("In Battle! Transitioning to action...")
-        machine.stop() # Stops execution loop
+        print("Automation complete.")
+        machine.stop()
 
-# Run FSM Orchestrator
+
 device = AndroidDevice()
+
 fsm = StateMachine(device)
 
-fsm.register(StateExploring())
-fsm.register(StateInBattle())
+fsm.register(StateLaunch())
+fsm.register(StateFinished())
 
-fsm.start(StateExploring)
+fsm.start(StateLaunch)
+
 fsm.run(tick_rate_seconds=0.05)
 ```
 
-For full battle-ready examples, check out:
-* **[examples/encounter_bot.py](file:///c:/Users/Dhruv%20Jain/Downloads/Tools/AutomationBot/examples/encounter_bot.py)** (Console version)
-* **[examples/encounter_bot_gui.py](file:///c:/Users/Dhruv%20Jain/Downloads/Tools/AutomationBot/examples/encounter_bot_gui.py)** (Visual GUI version utilizing the generic dashboard module)
+---
+
+## 📂 Example Projects
+
+### Calculator Test
+
+Automated Android calculator validation using FSM-driven workflows.
+
+```bash
+python examples/calculator_test.py
+```
+
+### Encounter Bot
+
+FSM-based visual automation example.
+
+```bash
+python examples/encounter_bot.py
+```
+
+### Dashboard Demo
+
+Visual monitoring and telemetry dashboard.
+
+```bash
+python examples/encounter_bot_gui.py
+```
+
+---
+
+## 📊 Benchmark Goals
+
+| Metric                    | Target    |
+| ------------------------- | --------- |
+| Input Latency             | <1 ms     |
+| Streaming FPS             | 15–30 FPS |
+| Coordinate Scaling        | Automatic |
+| State Transition Overhead | Minimal   |
+
+---
+
+## 🛣️ Roadmap
+
+* [x] Continuous Frame Streaming
+* [x] Resolution-Independent Input
+* [x] FSM Framework
+* [x] Visual Dashboard
+* [ ] OCR Utilities
+* [ ] Multi-Device Controller
+* [ ] H.264 Streaming Backend
+* [ ] Distributed Emulator Support
+* [ ] Plugin Architecture
+
+---
+
+## 🤝 Contributing
+
+Contributions, bug reports, and feature requests are welcome.
+
+If you'd like to improve VisionBot or build integrations on top of it, feel free to open an issue or submit a pull request.
+
+---
+
+## 📄 License
+
+Released under the MIT License.
