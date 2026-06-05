@@ -1,3 +1,4 @@
+
 # 🤖 VisionBot-SDK: Real-Time Mobile Automation Framework
 
 VisionBot-SDK is a lightweight Python framework for building high-speed Android automation tools, mobile testing systems, and computer-vision-driven agents.
@@ -8,8 +9,8 @@ Unlike traditional automation frameworks that rely on accessibility layers and h
 
 ## 🎥 Demo
 
-> Add a GIF or short video here showing:
->
+<img width="1280" height="718" alt="2026-06-0517-47-40-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/3f588463-8983-4a00-9e36-204ebb53b3c9" />
+
 > * Live Android screen streaming
 > * State transitions
 > * Automatic actions
